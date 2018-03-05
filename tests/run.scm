@@ -10,6 +10,8 @@
   (test '(*TOP* (*COMMENT* " example comment ") (html (head) (body)))
         (html->sxml "<!-- example comment -->"))
   (test '(*TOP* (html (head (template (b "test"))) (body)))
-        (html->sxml "<template><b>test</b></template>")))
+        (html->sxml "<template><b>test</b></template>"))
+  (test '(*TOP* (html (head) (body (div "\n    \n" (b "test") "\n  "))))
+        (html->sxml "  <div>\n    \n<b>test</b>\n  </div>")))
 
 (test-exit)

@@ -34,7 +34,7 @@
       ((= type TEXT) node-text)
       ((= type CDATA) node-text)
       ((= type COMMENT) comment->sxml)
-      ((= type WHITESPACE) ignore)
+      ((= type WHITESPACE) node-text)
       ((= type TEMPLATE) element->sxml)
       (else
        (abort (make-property-condition
@@ -42,8 +42,6 @@
                'message (sprintf "Unknown node type: ~S~n"
                                  (node-type node))))))
      node)))
-
-(define (ignore node) #f)
 
 (define (document->sxml node)
   `(*TOP* ,@(filter-map node->sxml (document-children node))))
