@@ -1,0 +1,5 @@
+*.so
+*.o
+*.c
+/gumbo.import.scm
+/tests/run

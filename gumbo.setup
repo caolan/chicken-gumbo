@@ -1,0 +1,9 @@
+(let ((pkg-cflags (with-input-from-pipe "pkg-config --cflags gumbo" read-line))
+      (pkg-lflags (with-input-from-pipe "pkg-config --libs gumbo" read-line)))
+  (compile -O2 -d1 -s gumbo.scm -J ,pkg-cflags ,pkg-lflags)
+  (compile -O2 -d0 -s "gumbo.import.scm"))
+
+(install-extension
+  'gumbo
+  '("gumbo.so" "gumbo.import.so")
+  '((version "0.1.0")))

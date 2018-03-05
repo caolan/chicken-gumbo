@@ -1,0 +1,5 @@
+((fsynopsis "Bindings to the Gumbo HTML parser")
+ (author "Caolan McMahon")
+ (category web)
+ (license "Apache 2.0")
+ (test-depends test))
