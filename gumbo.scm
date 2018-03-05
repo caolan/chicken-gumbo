@@ -14,6 +14,9 @@
       "gumbo_parse"
     c-string))
 
+(define TAG_UNKNOWN
+  (foreign-value "GUMBO_TAG_UNKNOWN" int))
+
 (define DOCUMENT (foreign-value "GUMBO_NODE_DOCUMENT" int))
 (define ELEMENT (foreign-value "GUMBO_NODE_ELEMENT" int))
 (define TEXT (foreign-value "GUMBO_NODE_TEXT" int))
@@ -99,16 +102,58 @@
   (list-tabulate (gumbo-vector-length v)
                  (cut gumbo-vector-ref v <>)))
 
-(define element-normalized-tagname
-  (foreign-lambda* c-string (((c-pointer (struct GumboNode)) node))
-    "C_return(gumbo_normalized_tagname(((GumboNode*)node)->v.element.tag));"))
+(define gumbo-string-piece-length
+  (foreign-lambda* size_t
+      (((c-pointer (struct GumboStringPiece)) p))
+    "C_return(((GumboStringPiece*)p)->length);"))
+
+(define gumbo-string-piece-data
+  (foreign-lambda* c-pointer
+      (((c-pointer (struct GumboStringPiece)) p))
+    "C_return(((GumboStringPiece*)p)->data);"))
+
+(define (gumbo-string-piece->string p)
+  (let* ((len (gumbo-string-piece-length p))
+         (str (make-string len)))
+    (move-memory! (gumbo-string-piece-data p)
+                  (location str)
+                  len)
+    str))
+
+(define element-tag
+  (foreign-lambda* int (((c-pointer (struct GumboNode)) node))
+    "C_return(((GumboNode*)node)->v.element.tag);"))
+
+(define normalized-tagname
+  (foreign-lambda c-string "gumbo_normalized_tagname" int))
+
+(define tag-from-original-text
+  (foreign-lambda void "gumbo_tag_from_original_text"
+    c-pointer))
+
+(define element-original-tag-string-piece
+  (foreign-lambda* (c-pointer (struct GumboStringPiece))
+      (((c-pointer (struct GumboNode)) node))
+    "C_return(&(((GumboNode*)node)->v.element.original_tag));"))
+    
+(define (element-original-tagname node)
+  (let ((original (element-original-tag-string-piece node)))
+    (tag-from-original-text original)
+    (gumbo-string-piece->string original)))
+
+(define (tagname node)
+  (let ((tag (element-tag node)))
+    (string->symbol
+     (if (= TAG_UNKNOWN tag)
+         (element-original-tagname node)
+         (normalized-tagname tag)))))
 
 (define node-text
   (foreign-lambda* c-string (((c-pointer (struct GumboNode)) node))
     "C_return(((GumboNode*)node)->v.text.text);"))
 
 (define (element->sxml node)
-  `(,(string->symbol (element-normalized-tagname node))
+  `(,(tagname node)
     ,@(let ((attrs (element-attributes node)))
         (if (null? attrs)
             '()

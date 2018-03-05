@@ -12,6 +12,8 @@
   (test '(*TOP* (html (head (template (b "test"))) (body)))
         (html->sxml "<template><b>test</b></template>"))
   (test '(*TOP* (html (head) (body (div "\n    \n" (b "test") "\n  "))))
-        (html->sxml "  <div>\n    \n<b>test</b>\n  </div>")))
+        (html->sxml "  <div>\n    \n<b>test</b>\n  </div>"))
+  (test '(*TOP* (html (head) (body (my-custom-tag (@ (data-foo "bar")) "baz"))))
+        (html->sxml "<my-custom-tag data-foo=\"bar\">baz</my-custom-tag>")))
 
 (test-exit)
