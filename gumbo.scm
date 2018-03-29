@@ -35,7 +35,7 @@
       ((= type DOCUMENT) document->sxml)
       ((= type ELEMENT) element->sxml)
       ((= type TEXT) node-text)
-      ((= type CDATA) node-text)
+      ((= type CDATA) cdata->sxml)
       ((= type COMMENT) comment->sxml)
       ((= type WHITESPACE) node-text)
       ((= type TEMPLATE) element->sxml)
@@ -58,6 +58,9 @@
 
 (define (comment->sxml node)
   `(*COMMENT* ,(node-text node)))
+
+(define (cdata->sxml node)
+  `(*CDATA* ,(node-text node)))
 
 (define (element-children node)
   (gumbo-vector->list
